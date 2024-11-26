@@ -10,10 +10,10 @@ class FractalImageView:
         # Create a Pillow image from the pixels
         img_array: list[list[tuple[int, int, int]]] = [
             [
-                fractal_flame.pixels[py][px].to_tuple()
-                for px in range(fractal_flame.resolution.width)
+                fractal_flame._pixels[py][px].to_tuple()
+                for px in range(fractal_flame._resolution.width)
             ]
-            for py in range(fractal_flame.resolution.height)
+            for py in range(fractal_flame._resolution.height)
         ]
 
         # Flatten the list of lists into a single list of tuples (RGB values)
@@ -23,7 +23,7 @@ class FractalImageView:
 
         # Create a Pillow image using the flattened list
         img: PILImage = Image.new(
-            "RGB", (fractal_flame.resolution.width, fractal_flame.resolution.height)
+            "RGB", (fractal_flame._resolution.width, fractal_flame._resolution.height)
         )
 
         # Put the flattened pixel data into the image

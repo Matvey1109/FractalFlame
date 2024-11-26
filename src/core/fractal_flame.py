@@ -1,6 +1,7 @@
 import random
 import threading
 
+from src.core.symmetry_type import SymmetryType
 from src.domain.affine_coefficient import AffineCoefficient
 from src.domain.pixel import Pixel
 from src.domain.point import Point
@@ -12,32 +13,38 @@ from src.transformations.affine import affine_transform
 class FractalFlame:
     """Class holds the pixel grid and manages rendering"""
 
-    def __init__(self, resolution: Resolution, rect: Rect):
-        self.resolution: Resolution = resolution
-        self.rect: Rect = rect
-        self.pixels: list[list[Pixel]] = [
+    def __init__(
+        self,
+        resolution: Resolution,
+        rect: Rect,
+        symmetry_type: SymmetryType = SymmetryType.NONE,
+    ):
+        self._resolution: Resolution = resolution
+        self._rect: Rect = rect
+        self._pixels: list[list[Pixel]] = [
             [Pixel() for _ in range(resolution.width)] for _ in range(resolution.height)
         ]
-        self.hit_count: list[list[int]] = [
+        self._hit_count: list[list[int]] = [
             [0 for _ in range(resolution.width)] for _ in range(resolution.height)
         ]
+        self._symmetry_type: SymmetryType = symmetry_type
 
     @staticmethod
-    def create(resolution: Resolution, rect: Rect):
-        return FractalFlame(resolution, rect)
+    def create(resolution: Resolution, rect: Rect, symmetry_type: SymmetryType):
+        return FractalFlame(resolution, rect, symmetry_type)
 
-    def render_thread(
+    def _render_thread(
         self,
         iterations: int,
         coeffs: list[AffineCoefficient],
         thread_id: int,
         thread_results,
-    ):
+    ) -> None:
         """Threaded rendering logic"""
-        XMIN, XMAX = self.rect.xmin, self.rect.xmax
-        YMIN, YMAX = self.rect.ymin, self.rect.ymax
-        x_res: float = self.resolution.width
-        y_res: float = self.resolution.height
+        XMIN, XMAX = self._rect.xmin, self._rect.xmax
+        YMIN, YMAX = self._rect.ymin, self._rect.ymax
+        x_res: float = self._resolution.width
+        y_res: float = self._resolution.height
 
         # Initialize separate results for this thread
         local_pixels: list[list[Pixel]] = [
@@ -62,14 +69,33 @@ class FractalFlame:
                 point: Point = affine_transform(point.x, point.y, coeff)
                 point: Point = coeff.transformation.apply(point.x, point.y)
 
-                if XMIN <= point.x <= XMAX and YMIN <= point.y <= YMAX:
-                    resolution: Resolution = self.rect.scale(
-                        point.x, point.y, self.resolution
-                    )
-                    local_pixels[resolution.height][resolution.width].add_color(
-                        coeff.red, coeff.green, coeff.blue
-                    )
-                    local_hit_count[resolution.height][resolution.width] += 1
+                # Apply symmetry
+                points = [point]  # Original point
+                match self._symmetry_type:
+                    case SymmetryType.HORIZONTAL:
+                        points.append(Point(point.x, -point.y))
+                    case SymmetryType.VERTICAL:
+                        points.append(Point(-point.x, point.y))
+                    case SymmetryType.BOTH:
+                        points.extend(
+                            [
+                                Point(-point.x, point.y),
+                                Point(point.x, -point.y),
+                                Point(-point.x, -point.y),
+                            ]
+                        )
+                    case SymmetryType.NONE:
+                        pass  # No symmetry applied
+
+                for sym_point in points:
+                    if XMIN <= sym_point.x <= XMAX and YMIN <= sym_point.y <= YMAX:
+                        resolution: Resolution = self._rect.scale(
+                            sym_point.x, sym_point.y, self._resolution
+                        )
+                        local_pixels[resolution.height][resolution.width].add_color(
+                            coeff.red, coeff.green, coeff.blue
+                        )
+                        local_hit_count[resolution.height][resolution.width] += 1
 
         # Store local results in the thread_results dictionary
         thread_results[thread_id] = (local_pixels, local_hit_count)
@@ -83,7 +109,7 @@ class FractalFlame:
         # Launch threads
         for thread_id in range(num_threads):
             thread: threading.Thread = threading.Thread(
-                target=self.render_thread,
+                target=self._render_thread,
                 args=(iterations_per_thread, coeffs, thread_id, thread_results),
             )
             threads.append(thread)
@@ -95,15 +121,15 @@ class FractalFlame:
 
         # Combine results from all threads
         for thread_id, (local_pixels, local_hit_count) in thread_results.items():
-            for py in range(self.resolution.height):
-                for px in range(self.resolution.width):
-                    self.pixels[py][px].r += local_pixels[py][px].r
-                    self.pixels[py][px].g += local_pixels[py][px].g
-                    self.pixels[py][px].b += local_pixels[py][px].b
-                    self.hit_count[py][px] += local_hit_count[py][px]
+            for py in range(self._resolution.height):
+                for px in range(self._resolution.width):
+                    self._pixels[py][px].r += local_pixels[py][px].r
+                    self._pixels[py][px].g += local_pixels[py][px].g
+                    self._pixels[py][px].b += local_pixels[py][px].b
+                    self._hit_count[py][px] += local_hit_count[py][px]
 
         # Normalize pixels and apply gamma correction
-        max_hits: int = max(max(row) for row in self.hit_count)
-        for py in range(self.resolution.height):
-            for px in range(self.resolution.width):
-                self.pixels[py][px].normalize(max_hits)
+        max_hits: int = max(max(row) for row in self._hit_count)
+        for py in range(self._resolution.height):
+            for px in range(self._resolution.width):
+                self._pixels[py][px].normalize(max_hits)
