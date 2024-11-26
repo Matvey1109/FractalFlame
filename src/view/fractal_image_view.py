@@ -7,6 +7,8 @@ from src.core.fractal_flame import FractalFlame
 class FractalImageView:
     @staticmethod
     def to_image(fractal_flame: FractalFlame) -> PILImage:
+        """Convert FractalFlame to image"""
+
         # Create a Pillow image from the pixels
         img_array: list[list[tuple[int, int, int]]] = [
             [

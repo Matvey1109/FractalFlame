@@ -12,6 +12,10 @@ class Rect:
 
     def scale(self, x: float, y: float, resolution: Resolution) -> Resolution:
         """Scale a coordinate from fractal space into pixel space"""
-        px = int((x - self.xmin) / (self.xmax - self.xmin) * (resolution.width - 1))
-        py = int((y - self.ymin) / (self.ymax - self.ymin) * (resolution.height - 1))
+        px: int = int(
+            (x - self.xmin) / (self.xmax - self.xmin) * (resolution.width - 1)
+        )
+        py: int = int(
+            (y - self.ymin) / (self.ymax - self.ymin) * (resolution.height - 1)
+        )
         return Resolution(px, py)

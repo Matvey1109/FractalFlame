@@ -17,7 +17,7 @@ class Pixel:
         self.b += b
         self.hit_count += 1
 
-    def normalize(self, max_hits) -> None:
+    def normalize(self, max_hits: int) -> None:
         """Normalize the pixel's color values based on the maximum number of hits"""
         if self.hit_count > 0:
             # Logarithmic scaling based on hit count
@@ -27,7 +27,7 @@ class Pixel:
             self.b *= log_factor
 
             # Apply gamma correction
-            gamma = 2.2  # Common gamma value
+            gamma: float = 2.2  # Common gamma value
             self.r = self.r ** (1 / gamma)
             self.g = self.g ** (1 / gamma)
             self.b = self.b ** (1 / gamma)
@@ -53,6 +53,7 @@ class Pixel:
     #         self.b *= brightness
 
     def to_tuple(self) -> tuple[int, int, int]:
+        "Convert pixel to RGB tuple"
         return (
             int(min(self.r, 1.0) * 255),
             int(min(self.g, 1.0) * 255),
