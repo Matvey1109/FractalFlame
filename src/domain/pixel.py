@@ -51,3 +51,10 @@ class Pixel:
     #         self.r *= brightness
     #         self.g *= brightness
     #         self.b *= brightness
+
+    def to_tuple(self) -> tuple[int, int, int]:
+        return (
+            int(min(self.r, 1.0) * 255),
+            int(min(self.g, 1.0) * 255),
+            int(min(self.b, 1.0) * 255),
+        )

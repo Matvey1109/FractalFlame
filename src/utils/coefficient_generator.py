@@ -8,10 +8,12 @@ class CoefficientGenerator:
     """Utility class for generating random coefficients for affine transformations"""
 
     @staticmethod
-    def generate(num_coefficients: int, transformation: ITransformation) -> list[dict]:
+    def generate(
+        num_transforms: int, transformation: ITransformation
+    ) -> list[AffineCoefficient]:
         """Generates random coefficients for affine transformations"""
-        coefficients = []
-        for _ in range(num_coefficients):
+        coefficients: list[AffineCoefficient] = []
+        for _ in range(num_transforms):
             coefficients.append(
                 AffineCoefficient(
                     a=random.uniform(-1, 1),
