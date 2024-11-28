@@ -9,7 +9,7 @@ class CoefficientGenerator:
 
     @staticmethod
     def generate(
-        num_transforms: int, transformation: ITransformation
+        num_transforms: int, transformations: list[type[ITransformation]]
     ) -> list[AffineCoefficient]:
         """Generates random coefficients for affine transformations"""
         coefficients: list[AffineCoefficient] = []
@@ -25,7 +25,7 @@ class CoefficientGenerator:
                     red=random.random(),
                     green=random.random(),
                     blue=random.random(),
-                    transformation=transformation,
+                    transformations=transformations,
                 )
             )
         return coefficients

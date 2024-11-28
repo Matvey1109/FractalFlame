@@ -97,12 +97,16 @@ class FractalFlame:
             for _ in range(20):  # Burn-in iterations
                 coeff: AffineCoefficient = random.choice(coeffs)
                 point: Point = affine_transform(point.x, point.y, coeff)
-                point: Point = coeff.transformation.apply(point.x, point.y)
+
+                for transformation in coeff.transformations:
+                    point: Point = transformation().apply(point.x, point.y)
 
             for _ in range(iterations):  # Main rendering iterations
                 coeff: AffineCoefficient = random.choice(coeffs)
                 point: Point = affine_transform(point.x, point.y, coeff)
-                point: Point = coeff.transformation.apply(point.x, point.y)
+
+                for transformation in coeff.transformations:
+                    point: Point = transformation().apply(point.x, point.y)
 
                 # Apply symmetry
                 points: list[Point] = self._apply_symmetry(point)

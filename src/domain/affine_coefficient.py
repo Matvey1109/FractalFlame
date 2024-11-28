@@ -16,4 +16,4 @@ class AffineCoefficient:
     red: float
     green: float
     blue: float
-    transformation: ITransformation
+    transformations: list[type[ITransformation]]
