@@ -4,7 +4,7 @@ from PIL.Image import Image as PILImage
 from src.core.fractal_flame import FractalFlame
 
 
-class FractalImageView:
+class FractalImage:
     @staticmethod
     def to_image(fractal_flame: FractalFlame) -> PILImage:
         """Convert FractalFlame to image"""

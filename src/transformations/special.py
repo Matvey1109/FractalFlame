@@ -62,3 +62,19 @@ class DiamondTransformation(ITransformation):
         transformed_x: float = math.sin(theta) * math.cos(radius)
         transformed_y: float = math.cos(theta) * math.sin(radius)
         return Point(transformed_x, transformed_y)
+
+
+class CrossTransformation(ITransformation):
+    """Cross transformation (#48)"""
+
+    def apply(self, x: float, y: float) -> Point:
+        radius_denominator: float = (x**2 - y**2) ** 2
+
+        if math.isclose(radius_denominator, 0.0):
+            raise ZeroDivisionError("Division by zero in radius denominator")
+
+        radius: float = math.sqrt(1 / radius_denominator)
+
+        transformed_x: float = radius * x
+        transformed_y: float = radius * y
+        return Point(transformed_x, transformed_y)

@@ -1,19 +1,32 @@
+from src.core.symmetry_type import SymmetryType
+from src.domain.fractal_parameters import FractalParameters
 from src.domain.rect import Rect
 from src.domain.resolution import Resolution
-from src.view.parameter_validator import ParameterValidator
-from src.domain.fractal_parameters import FractalParameters
 from src.transformations.base import ITransformation
-from src.transformations.special import (
-    PolarTransformation,
-    HandkerchiefTransformation,
-    HeartTransformation,
-    DiskTransformation,
-    DiamondTransformation,
-)
+from src.transformations.special import (CrossTransformation,
+                                         DiamondTransformation,
+                                         DiskTransformation,
+                                         HandkerchiefTransformation,
+                                         HeartTransformation,
+                                         PolarTransformation)
+from src.view.parameter_validator import ParameterValidator
 
 
-class FractalParametersView:
+class InputParameters:
     """Handles user interaction for setting fractal parameters."""
+
+    DEFAULT_PARAMETERS: FractalParameters = FractalParameters(
+        resolution=Resolution(1920, 1080),
+        num_iterations=2000,
+        num_transforms=8,
+        rect=Rect(-1.777, 1.777, -1, 1),
+        transformations=[
+            CrossTransformation,
+            PolarTransformation,
+        ],  # Default single transformation
+        symmetry_type=SymmetryType.NONE,
+        number_of_threads=4,
+    )
 
     AVAILABLE_TRANSFORMATIONS: list[type[ITransformation]] = [
         PolarTransformation,
@@ -21,15 +34,8 @@ class FractalParametersView:
         HeartTransformation,
         DiskTransformation,
         DiamondTransformation,
+        CrossTransformation,
     ]
-
-    DEFAULT_PARAMETERS: FractalParameters = FractalParameters(
-        resolution=Resolution(1920, 1080),
-        num_iterations=500,
-        num_transforms=8,
-        rect=Rect(-1.777, 1.777, -1, 1),
-        transformations=[HeartTransformation],  # Default single transformation
-    )
 
     @staticmethod
     def get_parameters() -> FractalParameters:
@@ -49,9 +55,9 @@ class FractalParametersView:
 
         match choice:
             case 1:
-                return FractalParametersView.DEFAULT_PARAMETERS
+                return InputParameters.DEFAULT_PARAMETERS
             case 2:
-                return FractalParametersView._get_custom_parameters()
+                return InputParameters._get_custom_parameters()
             case _:
                 raise ValueError("Invalid choice")
 
@@ -60,7 +66,7 @@ class FractalParametersView:
         """Prompt the user for custom fractal parameters."""
         print("Enter custom parameters for fractal generation:")
 
-        resolution: Resolution = FractalParametersView._get_resolution()
+        resolution: Resolution = InputParameters._get_resolution()
 
         num_iterations: int = ParameterValidator.get_positive_int(
             "Enter the number of iterations (e.g., 500): ",
@@ -72,9 +78,15 @@ class FractalParametersView:
             "Number of transformations must be a positive integer.",
         )
 
-        rect: Rect = FractalParametersView._get_rendering_area()
+        rect: Rect = InputParameters._get_rendering_area()
 
-        transformations = FractalParametersView._get_transformations()
+        transformations: list[type[ITransformation]] = (
+            InputParameters._get_transformations()
+        )
+
+        symmetry_type = InputParameters._get_symmetry_type()
+
+        number_of_threads = InputParameters._get_number_of_threads()
 
         return FractalParameters(
             resolution=resolution,
@@ -82,6 +94,8 @@ class FractalParametersView:
             num_transforms=num_transforms,
             rect=rect,
             transformations=transformations,
+            symmetry_type=symmetry_type,
+            number_of_threads=number_of_threads,
         )
 
     @staticmethod
@@ -119,7 +133,7 @@ class FractalParametersView:
         """Prompt user to select transformations from the available list."""
         print("Available transformations:")
         for idx, transformation in enumerate(
-            FractalParametersView.AVAILABLE_TRANSFORMATIONS, start=1
+            InputParameters.AVAILABLE_TRANSFORMATIONS, start=1
         ):
             print(f"{idx}: {transformation.__name__}")
 
@@ -132,16 +146,50 @@ class FractalParametersView:
                 selected_indices: list[int] = [int(s.strip()) for s in selections]
 
                 if not all(
-                    1 <= idx <= len(FractalParametersView.AVAILABLE_TRANSFORMATIONS)
+                    1 <= idx <= len(InputParameters.AVAILABLE_TRANSFORMATIONS)
                     for idx in selected_indices
                 ):
                     raise ValueError("Selections out of range.")
 
                 selected_transformations: list[type[ITransformation]] = [
-                    FractalParametersView.AVAILABLE_TRANSFORMATIONS[idx - 1]
+                    InputParameters.AVAILABLE_TRANSFORMATIONS[idx - 1]
                     for idx in selected_indices
                 ]
 
                 return selected_transformations
             except ValueError as e:
                 print(f"Invalid input: {e}. Please try again.")
+
+    @staticmethod
+    def _get_symmetry_type() -> SymmetryType:
+        """Prompt user to select symmetry type."""
+        print("Select symmetry type:")
+        for sym_type in SymmetryType:
+            print(f"{sym_type.value}: {sym_type.name}")
+
+        choice: str = input("Enter your choice: ")
+
+        while choice not in [sym.value for sym in SymmetryType]:
+            print("Invalid choice. Please enter a valid symmetry type.")
+            choice: str = input("Enter your choice: ")
+
+        return SymmetryType(choice)
+
+    @staticmethod
+    def _get_number_of_threads() -> int:
+        """Prompt user to select the number of threads."""
+        print("Select the number of threads:")
+        print("1: Singlethreading")
+        print("4: Multithreading")
+
+        choice: int = ParameterValidator.get_positive_int(
+            "Enter your choice: ", "Choice must be 1 or 4."
+        )
+
+        while choice not in [1, 4]:
+            print("Invalid choice. Please enter 1 or 4.")
+            choice = ParameterValidator.get_positive_int(
+                "Enter your choice: ", "Choice must be 1 or 4."
+            )
+
+        return choice
