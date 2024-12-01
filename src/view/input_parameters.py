@@ -8,7 +8,8 @@ from src.transformations.special import (CrossTransformation,
                                          DiskTransformation,
                                          HandkerchiefTransformation,
                                          HeartTransformation,
-                                         PolarTransformation)
+                                         PolarTransformation,
+                                         SphericalTransformation)
 from src.view.parameter_validator import ParameterValidator
 
 
@@ -19,10 +20,10 @@ class InputParameters:
         resolution=Resolution(1920, 1080),
         num_iterations=2000,
         num_transforms=8,
-        rect=Rect(-1.777, 1.777, -1, 1),
+        rect=Rect(-1.777, 1.777, -1.0, 1.0),
         transformations=[
-            CrossTransformation,
-            PolarTransformation,
+            SphericalTransformation,
+            DiskTransformation,
         ],  # Default single transformation
         symmetry_type=SymmetryType.NONE,
         number_of_threads=4,
@@ -69,7 +70,7 @@ class InputParameters:
         resolution: Resolution = InputParameters._get_resolution()
 
         num_iterations: int = ParameterValidator.get_positive_int(
-            "Enter the number of iterations (e.g., 500): ",
+            "Enter the number of iterations (e.g., 2000): ",
             "Iterations must be a positive integer.",
         )
 
@@ -78,7 +79,12 @@ class InputParameters:
             "Number of transformations must be a positive integer.",
         )
 
-        rect: Rect = InputParameters._get_rendering_area()
+        rect: Rect = Rect(
+            xmin=-1.0 * resolution.width / resolution.height,
+            xmax=resolution.width / resolution.height,
+            ymin=-1.0,
+            ymax=1.0,
+        )
 
         transformations: list[type[ITransformation]] = (
             InputParameters._get_transformations()
@@ -109,24 +115,6 @@ class InputParameters:
             "Height must be a positive integer.",
         )
         return Resolution(width, height)
-
-    @staticmethod
-    def _get_rendering_area() -> Rect:
-        """Prompt user for rendering area bounds, ensuring valid relationships."""
-        print("Enter rendering area (left, right, bottom, top):")
-        left: float = ParameterValidator.get_float("Left: ")
-        right: float = ParameterValidator.get_float("Right: ")
-        while right <= left:
-            print("Right must be greater than Left.")
-            right = ParameterValidator.get_float("Right: ")
-
-        bottom: float = ParameterValidator.get_float("Bottom: ")
-        top: float = ParameterValidator.get_float("Top: ")
-        while top <= bottom:
-            print("Top must be greater than Bottom.")
-            top = ParameterValidator.get_float("Top: ")
-
-        return Rect(left, right, bottom, top)
 
     @staticmethod
     def _get_transformations() -> list[type[ITransformation]]:

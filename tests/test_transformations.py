@@ -7,12 +7,18 @@ from src.transformations.special import (CrossTransformation,
                                          DiskTransformation,
                                          HandkerchiefTransformation,
                                          HeartTransformation,
-                                         PolarTransformation)
+                                         PolarTransformation,
+                                         SphericalTransformation)
+
+
+def is_close(a, b, rel_tol=1e-9, abs_tol=0.0):
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 @pytest.mark.parametrize(
     "transformation_class, expected_output",
     [
+        (SphericalTransformation, Point(0.15384615384615385, 0.23076923076923078)),
         (PolarTransformation, Point(0.3128329581890012, 2.605551275463989)),
         (HandkerchiefTransformation, Point(-3.5778476801486687, -3.1310513738273134)),
         (HeartTransformation, Point(-1.4104430878355214, 3.318229994436341)),
@@ -30,5 +36,5 @@ def test_transformation_apply(
     assert isinstance(result, Point)
     assert isinstance(result.x, float)
     assert isinstance(result.y, float)
-    assert result.x == expected_output.x
-    assert result.y == expected_output.y
+    assert is_close(result.x, expected_output.x)
+    assert is_close(result.y, expected_output.y)

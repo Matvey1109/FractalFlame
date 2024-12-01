@@ -12,6 +12,7 @@ from src.view.output_statistics import OutputStatistics
 
 def workflow():
     fractal_parameters: FractalParameters = InputParameters.get_parameters()
+    print("Program started!")
 
     coeffs: list[AffineCoefficient] = CoefficientGenerator.generate(
         num_transforms=fractal_parameters.num_transforms,
@@ -41,3 +42,4 @@ def workflow():
     STATISTICS_FILENAME: str = f"{DATA_FOLDER}/statistics.md"
     writer: OutputStatistics = OutputStatistics(file_path=STATISTICS_FILENAME)
     writer.append_to_file(fractal_parameters=fractal_parameters)
+    print(f"Program finished! Find results in folder *{DATA_FOLDER}*")

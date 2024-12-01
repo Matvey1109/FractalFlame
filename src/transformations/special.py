@@ -4,6 +4,15 @@ from src.domain.point import Point
 from src.transformations.base import ITransformation
 
 
+class SphericalTransformation(ITransformation):
+    """Spherical transformation (#2)"""
+
+    def apply(self, x: float, y: float) -> Point:
+        transformed_x: float = x / (x**2 + y**2)
+        transformed_y: float = y / (x**2 + y**2)
+        return Point(transformed_x, transformed_y)
+
+
 class PolarTransformation(ITransformation):
     """Polar transformation (#5)"""
 

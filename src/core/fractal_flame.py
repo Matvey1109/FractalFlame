@@ -36,7 +36,9 @@ class FractalFlame:
     ) -> "FractalFlame":
         return FractalFlame(resolution, rect, symmetry_type)
 
-    def render(self, iterations: int, coeffs: list[AffineCoefficient], num_threads=1):
+    def render(
+        self, iterations: int, coeffs: list[AffineCoefficient], num_threads=1
+    ) -> None:
         """Main rendering function"""
         threads: list[Thread] = []
         thread_results: dict[int, RenderData] = {}
