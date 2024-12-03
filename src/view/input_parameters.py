@@ -1,3 +1,5 @@
+import enum
+
 from src.core.symmetry_type import SymmetryType
 from src.domain.fractal_parameters import FractalParameters
 from src.domain.rect import Rect
@@ -13,17 +15,21 @@ from src.transformations.special import (CrossTransformation,
 from src.view.parameter_validator import ParameterValidator
 
 
+class UserChoice(enum.Enum):
+    DEFAULT_PARAMETERS = 1
+    CUSTOM_PARAMETERS = 2
+
+
 class InputParameters:
     """Handles user interaction for setting fractal parameters."""
 
     DEFAULT_PARAMETERS: FractalParameters = FractalParameters(
         resolution=Resolution(1920, 1080),
-        num_iterations=2000,
+        num_iterations=3000,
         num_transforms=8,
         rect=Rect(-1.777, 1.777, -1.0, 1.0),
         transformations=[
-            SphericalTransformation,
-            DiskTransformation,
+            CrossTransformation,
         ],  # Default single transformation
         symmetry_type=SymmetryType.NONE,
         number_of_threads=4,
@@ -36,6 +42,7 @@ class InputParameters:
         DiskTransformation,
         DiamondTransformation,
         CrossTransformation,
+        SphericalTransformation,
     ]
 
     @staticmethod
@@ -54,13 +61,12 @@ class InputParameters:
                 "Enter your choice (1 or 2): ", "Choice must be 1 or 2."
             )
 
-        match choice:
-            case 1:
-                return InputParameters.DEFAULT_PARAMETERS
-            case 2:
-                return InputParameters._get_custom_parameters()
-            case _:
-                raise ValueError("Invalid choice")
+        if choice == UserChoice.DEFAULT_PARAMETERS.value:
+            return InputParameters.DEFAULT_PARAMETERS
+        elif choice == UserChoice.CUSTOM_PARAMETERS.value:
+            return InputParameters._get_custom_parameters()
+        else:
+            raise ValueError("Invalid choice")
 
     @staticmethod
     def _get_custom_parameters() -> FractalParameters:

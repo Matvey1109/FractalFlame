@@ -3,10 +3,13 @@ from src.transformations.base import ITransformation
 
 
 class OutputStatistics:
+    """Class for printing statistics"""
+
     def __init__(self, file_path: str) -> None:
         self.file_path: str = file_path
 
     def append_to_file(self, fractal_parameters: FractalParameters):
+        """Appends statistics to file"""
         with open(self.file_path, "a") as file:
             if file.tell() == 0:  # Check if file is empty
                 file.write(
@@ -23,6 +26,7 @@ class OutputStatistics:
     def _format_transformations(
         self, transformations: list[type[ITransformation]]
     ) -> str:
+        """Apply correct visual format for transformation column"""
         return ", ".join(
             [transformation.__name__ for transformation in transformations]
         )

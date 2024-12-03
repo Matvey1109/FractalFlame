@@ -9,6 +9,10 @@ from src.view.fractal_image import FractalImage
 from src.view.input_parameters import InputParameters
 from src.view.output_statistics import OutputStatistics
 
+DATA_FOLDER: str = "data"
+IMG_FILENAME: str = f"{DATA_FOLDER}/fractal_flame.png"
+STATISTICS_FILENAME: str = f"{DATA_FOLDER}/statistics.md"
+
 
 def workflow():
     fractal_parameters: FractalParameters = InputParameters.get_parameters()
@@ -34,12 +38,8 @@ def workflow():
     fractal_parameters.runtime = runtime
     fractal_image: PILImage = FractalImage.to_image(fractal_flame)
 
-    DATA_FOLDER = "data"
-
-    IMG_FILENAME: str = f"{DATA_FOLDER}/fractal_flame.png"
     fractal_image.save(IMG_FILENAME, "PNG")
 
-    STATISTICS_FILENAME: str = f"{DATA_FOLDER}/statistics.md"
     writer: OutputStatistics = OutputStatistics(file_path=STATISTICS_FILENAME)
     writer.append_to_file(fractal_parameters=fractal_parameters)
     print(f"Program finished! Find results in folder *{DATA_FOLDER}*")

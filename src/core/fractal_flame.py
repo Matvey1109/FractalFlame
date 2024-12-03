@@ -94,24 +94,32 @@ class FractalFlame:
         for _ in range(iterations):
             x: float = random.uniform(XMIN, XMAX)
             y: float = random.uniform(YMIN, YMAX)
-            point: Point = Point(x, y)
+            current_point: Point = Point(x, y)
 
             for _ in range(20):  # Burn-in iterations
                 coeff: AffineCoefficient = random.choice(coeffs)
-                point: Point = affine_transform(point.x, point.y, coeff)
+                current_point: Point = affine_transform(
+                    current_point.x, current_point.y, coeff
+                )
 
                 for transformation in coeff.transformations:
-                    point: Point = transformation().apply(point.x, point.y)
+                    current_point: Point = transformation().apply(
+                        current_point.x, current_point.y
+                    )
 
             for _ in range(iterations):  # Main rendering iterations
                 coeff: AffineCoefficient = random.choice(coeffs)
-                point: Point = affine_transform(point.x, point.y, coeff)
+                current_point: Point = affine_transform(
+                    current_point.x, current_point.y, coeff
+                )
 
                 for transformation in coeff.transformations:
-                    point: Point = transformation().apply(point.x, point.y)
+                    current_point: Point = transformation().apply(
+                        current_point.x, current_point.y
+                    )
 
                 # Apply symmetry
-                points: list[Point] = self._apply_symmetry(point)
+                points: list[Point] = self._apply_symmetry(current_point)
 
                 for sym_point in points:
                     if XMIN <= sym_point.x <= XMAX and YMIN <= sym_point.y <= YMAX:

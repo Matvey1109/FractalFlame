@@ -28,9 +28,9 @@ class Pixel:
 
             # Apply gamma correction
             gamma: float = 2.2  # Common gamma value
-            self.r = self.r ** (1 / gamma)
-            self.g = self.g ** (1 / gamma)
-            self.b = self.b ** (1 / gamma)
+            self.r = self._apply_gamma_correction(self.r, gamma)
+            self.g = self._apply_gamma_correction(self.g, gamma)
+            self.b = self._apply_gamma_correction(self.b, gamma)
 
     def to_tuple(self) -> tuple[int, int, int]:
         "Convert pixel to RGB tuple"
@@ -39,3 +39,7 @@ class Pixel:
             int(min(self.g, 1.0) * 255),
             int(min(self.b, 1.0) * 255),
         )
+
+    def _apply_gamma_correction(self, value: float, gamma: float) -> float:
+        """Apply gamma correction to a color value"""
+        return value ** (1 / gamma)

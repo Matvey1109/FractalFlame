@@ -8,6 +8,8 @@ from src.transformations.base import ITransformation
 
 @dataclass
 class FractalParameters:
+    """Stores parameters for fractal flame"""
+
     resolution: Resolution
     num_iterations: int
     num_transforms: int
