@@ -11,6 +11,9 @@ from src.domain.resolution import Resolution
 from src.transformations.affine import affine_transform
 
 
+NUMBER_OF_SKIPPING_ITERATIONS: int = 20
+
+
 class FractalFlame:
     """Class holds the pixel grid and manages rendering"""
 
@@ -96,7 +99,7 @@ class FractalFlame:
             y: float = random.uniform(YMIN, YMAX)
             current_point: Point = Point(x, y)
 
-            for _ in range(20):  # Burn-in iterations
+            for _ in range(NUMBER_OF_SKIPPING_ITERATIONS):  # Burn-in iterations
                 coeff: AffineCoefficient = random.choice(coeffs)
                 current_point: Point = affine_transform(
                     current_point.x, current_point.y, coeff
