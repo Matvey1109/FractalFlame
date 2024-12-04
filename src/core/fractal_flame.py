@@ -10,7 +10,6 @@ from src.domain.rect import Rect
 from src.domain.resolution import Resolution
 from src.transformations.affine import affine_transform
 
-
 NUMBER_OF_SKIPPING_ITERATIONS: int = 20
 
 
